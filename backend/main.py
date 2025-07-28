@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Depends
-from .database import engine, SessionLocal, Base
-from .models import product
+
+from .database import engine, Base, get_db  
+from .models.product import Product  
 from sqlalchemy.orm import Session
 
 app = FastAPI()
 
 # Créez les tables
-product.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 # Dépendance (identique à celle dans database.py)
 def get_db():
