@@ -5,14 +5,14 @@ class ProductBase(BaseModel):
     price: float
 
 class ProductCreate(ProductBase):
-    name: str
-    price: float
+    pass
 
-class Product(ProductBase):
-    id: int
 
 class ProductResponse(ProductCreate):
     id: int
+class ProductResponse(ProductBase):
+    id: int
+    
 
     class Config:
         from_attributes = True 

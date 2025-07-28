@@ -3,17 +3,20 @@ from .database import engine, Base, get_db
 from .models.product import Product  
 from sqlalchemy.orm import Session
 from fastapi import HTTPException  
+from . import schemas
 from .schemas.product import ProductCreate
+from fastapi.encoders import jsonable_encoder
+from typing import List  
 
 app = FastAPI()
 
-# Créez les tables
+
 Base.metadata.create_all(bind=engine)
 
 
 @app.post("/products/", response_model=ProductCreate)
 async def create_product(
-    product_data: ProductCreate,  # Utilise le schéma
+    product_data: ProductCreate,  
     db: Session = Depends(get_db)
 ):
     try:
@@ -31,6 +34,14 @@ async def create_product(
             status_code=500,
             detail=f"Erreur serveur: {str(e)}"
         )
-@app.get("/products/")
-def read_products(db: Session = Depends(get_db)):
-    return db.query(product.Product).all()
+@app.get("/products/", response_model=List[schemas.ProductResponse])  
+async def get_products(db: Session = Depends(get_db)):
+    try:
+        products = db.query(models.Product).all()
+        return jsonable_encoder(products)  
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erreur de base de données: {str(e)}"
+        )
