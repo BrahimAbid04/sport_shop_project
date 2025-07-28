@@ -7,13 +7,7 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     pass
 
-
-class ProductResponse(ProductCreate):
-    id: int
 class ProductResponse(ProductBase):
-    id: int
-    
-
+    id: int  
     class Config:
-        from_attributes = True 
-    
+        from_attributes = True  

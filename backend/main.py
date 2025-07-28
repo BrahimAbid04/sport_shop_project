@@ -1,11 +1,11 @@
 from fastapi import FastAPI, Depends
+from backend import models
 from .database import engine, Base, get_db  
 from .models.product import Product  
 from sqlalchemy.orm import Session
 from fastapi import HTTPException  
-from . import schemas
-from .schemas.product import ProductCreate
 from fastapi.encoders import jsonable_encoder
+from backend.schemas.product import ProductResponse, ProductCreate
 from typing import List  
 
 app = FastAPI()
@@ -34,7 +34,8 @@ async def create_product(
             status_code=500,
             detail=f"Erreur serveur: {str(e)}"
         )
-@app.get("/products/", response_model=List[schemas.ProductResponse])  
+        
+@app.get("/products/", response_model=List[ProductResponse])  
 async def get_products(db: Session = Depends(get_db)):
     try:
         products = db.query(models.Product).all()
