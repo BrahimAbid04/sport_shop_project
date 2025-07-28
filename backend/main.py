@@ -1,13 +1,29 @@
-from fastapi import FastAPI
-from backend.database import engine, Base
-from .models.product import Product
-from routers import products
-
-Base.metadata.create_all(bind=engine)  # Crée les tables
+from fastapi import FastAPI, Depends
+from .database import engine, SessionLocal, Base
+from .models import product
+from sqlalchemy.orm import Session
 
 app = FastAPI()
-app.include_router(products.router)
 
-@app.get("/")
-def root():
-    return {"message": "API de produits sportifs"}
+# Créez les tables
+product.Base.metadata.create_all(bind=engine)
+
+# Dépendance (identique à celle dans database.py)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.post("/products/")
+def create_product(name: str, price: float, db: Session = Depends(get_db)):
+    db_product = product.Product(name=name, price=price)
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
+@app.get("/products/")
+def read_products(db: Session = Depends(get_db)):
+    return db.query(product.Product).all()

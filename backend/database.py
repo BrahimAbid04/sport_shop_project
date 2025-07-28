@@ -6,23 +6,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = int(os.getenv("DB_PORT", 3306))  # Conversion en int
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_NAME = os.getenv("DB_NAME", "sport_db")
 
-DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'port': os.getenv('DB_PORT', '3306'),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', ''),
-    'name': os.getenv('DB_NAME', 'sport_products_db')
-}
-
-
-try:
-    DB_CONFIG['port'] = int(DB_CONFIG['port'])
-except (ValueError, TypeError):
-    DB_CONFIG['port'] = 3306  
-
-DATABASE_URL = f"mysql+pymysql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['name']}"
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
