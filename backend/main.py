@@ -4,7 +4,6 @@ from .database import engine, Base, get_db
 from .models.product import Product  
 from sqlalchemy.orm import Session
 from fastapi import HTTPException  
-from fastapi.encoders import jsonable_encoder
 from backend.schemas.product import ProductResponse, ProductCreate
 from typing import List  
 
@@ -39,7 +38,7 @@ async def create_product(
 async def get_products(db: Session = Depends(get_db)):
     try:
         products = db.query(models.Product).all()
-        return jsonable_encoder(products)  
+        return products 
     except Exception as e:
         db.rollback()
         raise HTTPException(
