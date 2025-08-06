@@ -6,8 +6,15 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException  
 from backend.schemas.product import ProductResponse, ProductCreate
 from typing import List  
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 Base.metadata.create_all(bind=engine)
